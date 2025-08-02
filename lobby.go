@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/pablu23/spotify/models"
+	"github.com/pablu23/hipstar/models"
 )
 
 type Lobby struct {

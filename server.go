@@ -1,7 +1,7 @@
 package spotify
 
 import (
-	spotifyclient "github.com/pablu23/spotify/spotify_client"
+	spotifyclient "github.com/pablu23/hipstar/spotify_client"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/spotify"
 )

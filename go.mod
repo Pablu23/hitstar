@@ -1,4 +1,4 @@
-module github.com/pablu23/spotify
+module github.com/pablu23/hipstar
 
 go 1.24.5
 

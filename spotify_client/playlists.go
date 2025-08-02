@@ -3,7 +3,7 @@ package spotifyclient
 import (
 	"strconv"
 
-	"github.com/pablu23/spotify/models"
+	"github.com/pablu23/hipstar/models"
 )
 
 // limit=20 0-50

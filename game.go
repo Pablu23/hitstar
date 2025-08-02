@@ -56,7 +56,7 @@ func (s *Server) GetRandomTrack(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, player := range lobby.Players {
-		err := player.spotifyClient.PostPlayerQueue(playlistItems.Items[0].Track.Uri)
+		err := player.spotifyClient.PlayTrack(playlistItems.Items[0].Track.Uri)
 		if err != nil {
 			slog.Error(
 				"unable to enqueue track",

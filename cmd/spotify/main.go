@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pablu23/spotify"
+	"github.com/pablu23/hipstar"
 )
 
 const redirectURI = "http://localhost:8080/callback"
