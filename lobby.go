@@ -3,6 +3,8 @@ package spotify
 import (
 	"crypto/rand"
 	"encoding/json"
+	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/pablu23/hipstar/models"
@@ -54,6 +56,45 @@ func (s *Server) SetPlaylistForLobby(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(&playlist)
+}
+
+func (s *Server) ListLobbyPlayers(w http.ResponseWriter, r *http.Request) {
+	lobbyCode := r.PathValue("lobby")
+	w.Header().Add("Content-Type", "application/json")
+	err := json.NewEncoder(w).Encode(&s.Lobbies[lobbyCode].Players)
+	if err != nil {
+		slog.Error("unable to json Encode player map", "players", s.Lobbies[lobbyCode].Players, "lobby", lobbyCode)
+		http.Error(w, "unable to list lobby players", http.StatusInternalServerError)
+		return
+	}
+}
+
+func (s *Server) JoinLobby(w http.ResponseWriter, r *http.Request) {
+	session, err := r.Cookie("session")
+	if err != nil {
+		slog.Error("unable to get cookie")
+		http.Error(w, "unable to get cookie", http.StatusUnauthorized)
+		return
+	}
+
+	client, ok := s.Sessions[session.Value]
+	if !ok {
+		slog.Error(
+			"unable to get session",
+			"session_id", session.Value,
+		)
+		http.Error(w, "unable to get session", http.StatusUnauthorized)
+		return
+	}
+
+	lobbyCode := r.PathValue("lobby")
+	initialName := fmt.Sprintf("Player %d", len(s.Lobbies))
+
+	player := NewPlayer(initialName, client, session.Value)
+	s.Lobbies[lobbyCode].Players = append(s.Lobbies[lobbyCode].Players, &player)
+
+	w.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&player)
 }
 
 func (s *Server) CreateLobby(w http.ResponseWriter, r *http.Request) {

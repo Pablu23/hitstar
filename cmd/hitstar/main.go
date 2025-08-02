@@ -51,6 +51,8 @@ func main() {
 	http.HandleFunc("/playlists", server.GetPlaylistsForUser)
 
 	// Lobby
+	http.HandleFunc("/lobby/{lobby}/join", server.JoinLobby)
+	http.HandleFunc("/lobby/{lobby}/players/list", server.ListLobbyPlayers)
 	http.HandleFunc("/lobby/{lobby}/playlist/{id}", server.SetPlaylistForLobby)
 	http.HandleFunc("/lobby/{lobby}/track", server.GetRandomTrack)
 
