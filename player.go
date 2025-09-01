@@ -69,11 +69,13 @@ func (s *Server) CompleteAuth(w http.ResponseWriter, r *http.Request) {
 		Quoted:   false,
 		Secure:   false,
 		HttpOnly: false,
+		SameSite: http.SameSiteLaxMode,
 	})
 
 	delete(s.States, state)
 
-	fmt.Fprintf(w, "logged in")
+	// fmt.Fprintf(w, "logged in")
+	http.Redirect(w, r, "http://hitstar.xyz:5173", http.StatusTemporaryRedirect)
 }
 
 func (s *Server) Login(w http.ResponseWriter, r *http.Request) {

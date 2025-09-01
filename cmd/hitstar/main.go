@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +11,7 @@ import (
 	"github.com/pablu23/hipstar"
 )
 
-const redirectURI = "http://localhost:8080/callback"
+const redirectURI = "http://api.hitstar.xyz:8080/callback"
 
 func readSecrets(path string) (map[string]string, error) {
 	file, err := os.Open(path)
@@ -36,6 +37,20 @@ func readSecrets(path string) (map[string]string, error) {
 	return result, nil
 }
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "http://hitstar.xyz:5173")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	secrets, err := readSecrets(".secret")
 	if err != nil {
@@ -43,22 +58,26 @@ func main() {
 	}
 
 	server := spotify.NewServer(secrets["client_id"], secrets["client_secret"], redirectURI)
-	http.HandleFunc("/login", server.Login)
-	http.HandleFunc("/callback", server.CompleteAuth)
+
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/login", server.Login)
+	mux.HandleFunc("/callback", server.CompleteAuth)
 
 	// POST
-	http.HandleFunc("/createLobby", server.CreateLobby)
-	http.HandleFunc("/playlists", server.GetPlaylistsForUser)
+	mux.HandleFunc("/createLobby", server.CreateLobby)
+	mux.HandleFunc("/playlists", server.GetPlaylistsForUser)
 
 	// Lobby
-	http.HandleFunc("/lobby/{lobby}/join", server.JoinLobby)
-	http.HandleFunc("/lobby/{lobby}/players/list", server.ListLobbyPlayers)
-	http.HandleFunc("/lobby/{lobby}/playlist/{id}", server.SetPlaylistForLobby)
-	http.HandleFunc("/lobby/{lobby}/track", server.GetRandomTrack)
+	mux.HandleFunc("/lobby/{lobby}/join", server.JoinLobby)
+	mux.HandleFunc("/lobby/{lobby}/players/list", server.ListLobbyPlayers)
+	mux.HandleFunc("/lobby/{lobby}/playlist/{id}", server.SetPlaylistForLobby)
+	mux.HandleFunc("/lobby/{lobby}/track", server.GetRandomTrack)
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Got request for:", r.URL.String())
 	})
 
-	http.ListenAndServe(":8080", nil)
+	fmt.Println("Starting Server on :8080")
+	http.ListenAndServe(":8080", corsMiddleware(mux))
 }
