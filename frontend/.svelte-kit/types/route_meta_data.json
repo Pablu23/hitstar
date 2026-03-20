@@ -1,0 +1,14 @@
+{
+	"/": [
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/lobby/[id]": [
+		"src/routes/lobby/[id]/+page.ts",
+		"src/routes/+layout.ts"
+	],
+	"/lobby/[id]/join": [
+		"src/routes/lobby/[id]/join/+page.ts",
+		"src/routes/+layout.ts"
+	]
+}
